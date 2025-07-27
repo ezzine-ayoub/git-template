@@ -1,0 +1,22 @@
+exclude: 'daisy-pre-commit-hooks/scripts/.*|odoo18/(check_manifest|wait-for-psql)\.py|check_duplicate_ids\.py|.idea/.*'
+repos:
+  - repo: https://github.com/ezzine-ayoub/daisy-pre-commit-hooks
+    rev: v1.1.5
+    hooks:
+      - id: check-xml-header
+      - id: check-manifest-fields
+        args:
+          - "--required_keys=name,version,category,description,author"
+      # - id: check-print-usage
+      - id: check-sudo-comment
+        pass_filenames: false
+      - id: detect-raw-sql-delete-insert
+      # - id: check_duplicate_method_names
+      - id: check-for-return
+      - id: check-xml-closing-tags
+      - id: check-report-template
+        args:
+          - "--addons="
+          - '--MANDATORY_FIELDS={"ir.ui.view": ["name", "model"],"ir.actions.act_window": ["name", "res_model", "view_mode"],"ir.actions.report": ["name", "model", "report_name"]}'
+      - id: check-compute-function
+      - id: check-duplicate-ids

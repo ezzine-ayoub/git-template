@@ -1,0 +1,44 @@
+#!/bin/sh
+# shellcheck disable=SC2164
+
+PROJECT_NAME=$(basename "$PWD")
+# Diro cd l dossier li fih project (t9dar tdiro auto f .git/hooks/post-checkout)
+cd "$PROJECT_NAME"
+CONFIG_FILE=".pre-commit-config.yaml"
+TEMPLATE_CONFIG="$HOME/.git-template/default-config/pre-commit-config.yaml"
+
+# Check if config file is missing
+if [ ! -f "$CONFIG_FILE" ]; then
+  echo "📄 $CONFIG_FILE not found. Creating from template..."
+  cp "$TEMPLATE_CONFIG" "$CONFIG_FILE"
+fi
+
+# Ensure pre-commit is installed and configured
+if command -v pre-commit >/dev/null 2>&1; then
+  pre-commit install
+fi
+
+
+
+# Njibo smiya dyal project
+
+echo "📁 Project name: $PROJECT_NAME"
+cd "$PROJECT_NAME"
+# Install pre-commit w run
+pip install pre-commit
+pre-commit install
+pre-commit clean
+if command -v pre-commit >/dev/null 2>&1; then
+  pre-commit run
+  RESULT=$?
+  if [ $RESULT -ne 0 ]; then
+    echo "❌ Commit blocked due to pre-commit hook failures."
+    exit 1
+  fi
+else
+  echo "⚠️ pre-commit not installed. Please run: pip install pre-commit"
+  exit 1
+fi
+
+exit 0
+echo "✅ Clone finished! Project [$PROJECT_NAME] ready with pre-commit hooks."
