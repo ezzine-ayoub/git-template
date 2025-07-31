@@ -6,7 +6,7 @@ PROJECT_NAME=$(basename "$PWD")
 CONFIG_FILE=".pre-commit-config.yaml"
 
 REQUIRED_STRING="repos:
-  - repo: https://github.com/ezzine-ayoub/daisy-pre-commit-hooks
+  - repo: https://github.com/Daisy-Consulting/daisy-pre-commit-hooks
     rev: v1.1.5"
 
 # ❌ Block commit if config file doesn't exist
@@ -16,7 +16,7 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 
 # ❌ Check if content includes specific required config
-grep -q "repo: https://github.com/ezzine-ayoub/daisy-pre-commit-hooks" "$CONFIG_FILE"
+grep -q "repo: https://github.com/Daisy-Consulting/daisy-pre-commit-hooks" "$CONFIG_FILE"
 if [ $? -ne 0 ]; then
   echo "❌ Commit blocked: $CONFIG_FILE doesn't include required daisy-pre-commit-hooks config."
   exit 1
