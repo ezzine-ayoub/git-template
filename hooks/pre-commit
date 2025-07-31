@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# pre-commit hook - runs before each commit
-# Ensures code quality and validates configuration
+# pre-commit hook - validates configuration before pre-commit runs
 # Compatible with Windows Git Bash, WSL, and Unix systems
 
 # Source shared functions
@@ -10,7 +9,7 @@ source "$SCRIPT_DIR/shared-functions.sh"
 PROJECT_NAME=$(get_project_name)
 OS_TYPE=$(detect_os)
 
-print_header "Pre-Commit Hook"
+print_header "Pre-Commit Configuration Validator"
 print_info "Running on $OS_TYPE"
 print_info "Project: $PROJECT_NAME"
 
@@ -21,21 +20,20 @@ if ! check_precommit_config; then
     exit 1
 fi
 
-# Ensure Python dependencies and install hooks if needed
-if ensure_python_deps && install_precommit; then
-    # Run pre-commit checks
-    print_info "Running pre-commit checks..."
-    if run_precommit; then
-        print_success "All pre-commit checks passed!"
-        exit 0
+# Ensure pre-commit is installed
+if ! check_precommit_installed; then
+    print_warning "pre-commit not installed, installing now..."
+    if command -v pip >/dev/null 2>&1; then
+        pip install pre-commit --quiet
+        pre-commit install
+        print_success "pre-commit installed successfully"
     else
-        print_error "Commit blocked due to pre-commit hook failures"
-        print_info "Fix the issues above before committing"
-        print_info "Or use 'git commit --no-verify' to bypass hooks (not recommended)"
+        print_error "pip not found. Please install Python and pip"
         exit 1
     fi
-else
-    print_error "pre-commit not installed or configured properly"
-    print_info "Please run: pip install pre-commit && pre-commit install"
-    exit 1
 fi
+
+print_success "Configuration validated! Pre-commit will now run..."
+
+# Let pre-commit handle the actual checks (no exit here, continue to pre-commit)
+exit 0

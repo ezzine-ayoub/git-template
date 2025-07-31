@@ -36,7 +36,7 @@ if ensure_python_deps && install_precommit; then
     else
         print_error "Push blocked due to pre-commit hook failures"
         print_info "Fix the issues above before attempting to push"
-#        print_info "Or use 'git push --no-verify' to bypass hooks (not recommended)"
+        print_info "Or use 'git push --no-verify' to bypass hooks (not recommended)"
         exit 1
     fi
 else
