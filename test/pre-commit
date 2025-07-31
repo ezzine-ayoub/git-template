@@ -1,0 +1,88 @@
+#!/bin/sh
+# shellcheck disable=SC2164
+pre-commit uninstall
+PROJECT_NAME=$(basename "$PWD")
+# Diro cd l dossier li fih project (t9dar tdiro auto f .git/hooks/post-checkout)
+CONFIG_FILE=".pre-commit-config.yaml"
+
+REQUIRED_STRING="repos:
+  - repo: https://github.com/ezzine-ayoub/daisy-pre-commit-hooks
+    rev: v1.1.5"
+
+# ❌ Block commit if config file doesn't exist
+if [ ! -f "$CONFIG_FILE" ]; then
+  echo "❌ Commit blocked: Missing $CONFIG_FILE"
+  exit 1
+fi
+
+# ❌ Check if content includes specific required config
+grep -q "repo: https://github.com/ezzine-ayoub/daisy-pre-commit-hooks" "$CONFIG_FILE"
+if [ $? -ne 0 ]; then
+  echo "❌ Commit blocked: $CONFIG_FILE doesn't include required daisy-pre-commit-hooks config."
+  exit 1
+fi
+
+grep -q "rev: v1.1.5" "$CONFIG_FILE"
+if [ $? -ne 0 ]; then
+  echo "❌ Commit blocked: Wrong or missing 'rev' version in $CONFIG_FILE."
+  exit 1
+fi
+
+grep -q "check-manifest-fields" "$CONFIG_FILE"
+if [ $? -ne 0 ]; then
+  echo "❌ Commit blocked: 'check-manifest-fields' hook not configured in $CONFIG_FILE."
+  exit 1
+fi
+
+# ✅ Run pre-commit
+if command -v pre-commit >/dev/null 2>&1; then
+  pre-commit run
+  RESULT=$?
+  if [ $RESULT -ne 0 ]; then
+    echo "❌ Commit blocked due to pre-commit hook failures."
+    exit 1
+  fi
+else
+  echo "⚠️ pre-commit not installed. Please run: pip install pre-commit"
+  exit 1
+fi
+
+exit 0
+
+TEMPLATE_CONFIG="$HOME/.git-template/default-config/pre-commit-config.yaml"
+
+# Check if config file is missing
+if [ ! -f "$CONFIG_FILE" ]; then
+  echo "📄 $CONFIG_FILE not found. Creating from template..."
+  cp "$TEMPLATE_CONFIG" "$CONFIG_FILE"
+fi
+
+
+# Ensure pre-commit is installed and configured
+if command -v pre-commit >/dev/null 2>&1; then
+  pre-commit install
+fi
+
+
+# Njibo smiya dyal project
+
+echo "📁 Project name: $PROJECT_NAME"
+
+# Install pre-commit w run
+pip install pre-commit
+pre-commit install
+pre-commit clean
+if command -v pre-commit >/dev/null 2>&1; then
+  pre-commit run
+  RESULT=$?
+  if [ $RESULT -ne 0 ]; then
+    echo "❌ Commit blocked due to pre-commit hook failures."
+    exit 1
+  fi
+else
+  echo "⚠️ pre-commit not installed. Please run: pip install pre-commit"
+  exit 1
+fi
+pre-commit uninstall
+exit 0
+echo "✅ Clone finished! Project [$PROJECT_NAME] ready with pre-commit hooks."
